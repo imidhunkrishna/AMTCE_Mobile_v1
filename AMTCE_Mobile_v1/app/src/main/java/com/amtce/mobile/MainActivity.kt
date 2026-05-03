@@ -113,6 +113,12 @@ class MainActivity : AppCompatActivity() {
         }
         lastMissionTime = currentTime
 
+        // 🛡️ SECURITY: Final Resilience Check (Fail-Closed)
+        if (!isSecurityVerified) {
+            Toast.makeText(this, "⚠️ Security: Waiting for network verification...", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         intent.getStringExtra(Intent.EXTRA_TEXT)?.let { sharedText ->
             // 🛡️ SECURITY 3 & 7: Intent Validation & Log Stripping
             // Prevent malicious apps from sending massive payloads or script injection
@@ -159,14 +165,27 @@ class MainActivity : AppCompatActivity() {
                 }
             }.start()
         }
+    private var isSecurityVerified = false
+
     private fun performSecurityAudit(): Boolean {
-        // 🛡️ SECURITY 3: Remote Kill-Switch (Adaptive Defense)
-        // Fetches remote status to allow for remote disabling in case of key breach.
+        // 🧠 5: Attack Visibility (Adversarial Telemetry)
+        fun reportViolation(type: String, details: String) {
+            Thread {
+                try {
+                    // Placeholder for a real logging endpoint (e.g., Google Analytics or custom webhook)
+                    URL("https://api.amtce.security/log?type=$type&details=$details").readText()
+                } catch (e: Exception) { /* Silent fail for telemetry */ }
+            }.start()
+        }
+
+        // 🛡️ SECURITY 3: Remote Kill-Switch (Fail-Closed Logic)
+        // [Architect Note] We now FAIL-CLOSED. If the config is unreachable, we block.
         Thread {
             try {
                 val config = URL("https://raw.githubusercontent.com/imidhunkrishna/AMTCE_Mobile_v1/main/security_config.json").readText()
                 val json = JSONObject(config)
                 if (!json.getBoolean("app_enabled")) {
+                    reportViolation("REMOTE_LOCKDOWN", "User was blocked by kill-switch")
                     runOnUiThread {
                         AlertDialog.Builder(this@MainActivity)
                             .setTitle("🛑 Remote Lockdown")
@@ -175,14 +194,25 @@ class MainActivity : AppCompatActivity() {
                             .setPositiveButton("Exit") { _, _ -> finish() }
                             .show()
                     }
+                } else {
+                    isSecurityVerified = true
                 }
-            } catch (e: Exception) { /* Fail safe: Allow if config is unreachable or not yet set */ }
+            } catch (e: Exception) {
+                reportViolation("NETWORK_BLOCKADE", "Could not reach security config - possible interception")
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "⚠️ Security: Network verification required to proceed.", Toast.LENGTH_LONG).show()
+                }
+            }
         }.start()
 
         val isRooted = checkRoot()
         val isEmulator = checkEmulator()
         val isTampered = !verifySignature()
         
+        if (isRooted) reportViolation("ROOT_DETECTED", Build.FINGERPRINT)
+        if (isEmulator) reportViolation("EMULATOR_DETECTED", Build.MODEL)
+        if (isTampered) reportViolation("SIGNATURE_MISMATCH", "APK was re-signed")
+
         if (isRooted || isEmulator || isTampered) {
             val message = if (isTampered) "Unofficial/Modded APK detected. Closing for safety." 
                           else "This application cannot run on a rooted device or emulator."
