@@ -3,6 +3,7 @@ package com.amtce.mobile
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,10 +11,13 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.chaquo.python.Python
+import java.io.File
+import java.util.*
 import com.chaquo.python.android.AndroidPlatform
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +28,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 🧠 1 & 10: Runtime Security Audit (Anti-Tamper/Root/Frida)
+        if (!performSecurityAudit()) {
+            return 
+        }
+
         setContentView(R.layout.activity_main)
 
         apiKeyInput = findViewById(R.id.apiKeyInput)
@@ -133,5 +143,51 @@ class MainActivity : AppCompatActivity() {
                 }
             }.start()
         }
+    private fun performSecurityAudit(): Boolean {
+        val isRooted = checkRoot()
+        val isEmulator = checkEmulator()
+        
+        if (isRooted || isEmulator) {
+            AlertDialog.Builder(this)
+                .setTitle("🛡️ Security Violation")
+                .setMessage("This application cannot run on a rooted device or emulator for security reasons (Runtime Integrity Protection).")
+                .setCancelable(false)
+                .setPositiveButton("Exit") { _, _ -> finish() }
+                .show()
+            return false
+        }
+        return true
+    }
+
+    private fun checkRoot(): Boolean {
+        val paths = arrayOf(
+            "/system/app/Superuser.apk", "/sbin/su", "/system/bin/su", "/system/xbin/su",
+            "/data/local/xbin/su", "/data/local/bin/su", "/system/sd/xbin/su",
+            "/system/bin/failsafe/su", "/data/local/su"
+        )
+        for (path in paths) {
+            if (File(path).exists()) return true
+        }
+        val buildTags = Build.TAGS
+        return buildTags != null && buildTags.contains("test-keys")
+    }
+
+    private fun checkEmulator(): Boolean {
+        return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || Build.FINGERPRINT.contains("generic")
+                || Build.FINGERPRINT.contains("unknown")
+                || Build.HARDWARE.contains("goldfish")
+                || Build.HARDWARE.contains("ranchu")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || Build.PRODUCT.contains("sdk_google")
+                || Build.PRODUCT.contains("google_sdk")
+                || Build.PRODUCT.contains("sdk")
+                || Build.PRODUCT.contains("sdk_x86")
+                || Build.PRODUCT.contains("vbox86p")
+                || Build.PRODUCT.contains("emulator")
+                || Build.PRODUCT.contains("simulator")
     }
 }
