@@ -50,6 +50,6 @@ dependencies {
     // 🛡️ Security: Encrypted SharedPreferences
     implementation 'androidx.security:security-crypto:1.1.0-alpha06'
     
-    // 🎥 FFmpeg-Kit (Native high-speed video processing)
-    implementation 'com.arthenica:ffmpeg-kit-full-gpl:6.0-2'
+    // 🎥 FFmpeg-Kit (Modern Fork with 16KB support)
+    implementation 'io.github.jamaismagic.ffmpeg:ffmpeg-kit-lts-full-gpl-16kb:6.1.4'
 }
