@@ -35,7 +35,7 @@ jobs:
     - name: 🏗️ Build with Gradle (Debug APK)
       uses: gradle/gradle-build-action@v2
       with:
-        gradle-version: current
+        gradle-version: 8.2
         build-root-directory: ./AMTCE_Mobile_v1
         arguments: assembleDebug
 
