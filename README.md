@@ -29,5 +29,29 @@ AMTCE Mobile is a high-performance, mobile-native intelligence suite designed to
 ## 🛡️ Security & Privacy
 AMTCE Mobile is built with a **Security-First** architecture. Local `.env` files are automatically ignored via `.gitignore`, and all sensitive keys are injected at runtime using GitHub Secrets or the secure on-device UI.
 
+## 🛡️ Post-Deployment Security Ops (SYSTEM DESIGNER LEVEL)
+Your application is now hardened at the client level. To reach 100% system-level security and protect your API economics, you MUST follow these steps:
+
+### 1. Google Cloud Platform (GCP) Hardening
+*   **Restrict API Key:** Go to GCP Console > Credentials. Restrict your Gemini API key to **Android Apps**.
+*   **Add Fingerprint:** Add your app's Package Name (`com.amtce.mobile`) and your SHA-1 certificate fingerprint. This prevents anyone from using your key outside of your specific, signed APK.
+*   **Set Quotas:** Set a "Daily Budget" or "Requests per Minute" quota in the Google AI Studio console. This limits your financial exposure if your key is proxied.
+
+### 2. Adaptive Defense (Remote Kill Switch)
+*   You can remotely disable your app by editing `security_config.json` in this repository.
+*   Set `"app_enabled": false` to instantly lock all deployed APKs if you suspect a breach.
+
+### 3. Red Teaming (Attack Your Own App)
+To verify your growth, attempt these attacks:
+1.  **Bypass Cooldown:** Use an auto-clicker to try and launch missions faster than 30s.
+2.  **Signature Spoof:** Try to re-sign the APK with a different key and install it.
+3.  **Root Inspection:** Try running the app on a rooted emulator with Frida.
+
+### 🚀 Production Readiness
+*   **Kotlin:** Hardened (Root/Emulator/Signature/Kill-Switch active)
+*   **Python:** Secured (Path sanitization/Prompt filtering/DB Encryption active)
+*   **Network:** Locked (TLS only/No cleartext)
+*   **Management:** Adaptive (Remote config active)
+
 ---
 *Developed by Google Deepmind Team x AMTCE Intelligence*

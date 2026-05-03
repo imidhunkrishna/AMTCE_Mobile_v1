@@ -1,0 +1,6 @@
+{
+  "app_enabled": true,
+  "lockdown_message": "AMTCE: Security Maintenance in progress. This version is temporarily disabled for safety. Please check the official repo for updates.",
+  "required_min_version": "1.0.0",
+  "api_endpoint_override": ""
+}

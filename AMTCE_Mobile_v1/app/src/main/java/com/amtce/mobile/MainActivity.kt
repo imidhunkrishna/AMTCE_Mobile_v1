@@ -19,8 +19,10 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.chaquo.python.Python
 import java.io.File
+import java.net.URL
 import java.security.MessageDigest
 import java.util.*
+import org.json.JSONObject
 import com.chaquo.python.android.AndroidPlatform
 
 class MainActivity : AppCompatActivity() {
@@ -158,6 +160,25 @@ class MainActivity : AppCompatActivity() {
             }.start()
         }
     private fun performSecurityAudit(): Boolean {
+        // 🛡️ SECURITY 3: Remote Kill-Switch (Adaptive Defense)
+        // Fetches remote status to allow for remote disabling in case of key breach.
+        Thread {
+            try {
+                val config = URL("https://raw.githubusercontent.com/imidhunkrishna/AMTCE_Mobile_v1/main/security_config.json").readText()
+                val json = JSONObject(config)
+                if (!json.getBoolean("app_enabled")) {
+                    runOnUiThread {
+                        AlertDialog.Builder(this@MainActivity)
+                            .setTitle("🛑 Remote Lockdown")
+                            .setMessage(json.getString("lockdown_message"))
+                            .setCancelable(false)
+                            .setPositiveButton("Exit") { _, _ -> finish() }
+                            .show()
+                    }
+                }
+            } catch (e: Exception) { /* Fail safe: Allow if config is unreachable or not yet set */ }
+        }.start()
+
         val isRooted = checkRoot()
         val isEmulator = checkEmulator()
         val isTampered = !verifySignature()
