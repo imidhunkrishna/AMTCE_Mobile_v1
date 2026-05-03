@@ -48,17 +48,16 @@ To verify your growth, attempt these attacks:
 3.  **Root Inspection:** Try running the app on a rooted emulator with Frida.
 
 ### 🚀 Production Readiness
-*   **Kotlin:** Resilient (Fail-Closed Kill-Switch / Root & Emulator Detection / Signature Pinning)
+*   **Kotlin:** Adaptive (Autonomous Immune System / Dynamic Trust Scoring / Graceful Degradation)
 *   **Python:** Hardened (Path & Prompt Sanitization / RAG Encryption)
-*   **Network:** Verified (Strict TLS / No Cleartext / Adversarial Telemetry active)
-*   **Management:** System-Level (Remote config with lockdown capability)
+*   **Network:** Self-Defending (Signed Telemetry / Adversarial Anomaly Detection)
+*   **Management:** Intelligence-Level (Remote config + local behavioral response)
 
-## 🧨 Resilience & Recovery Protocol
-Security is a process, not a state. If you detect an anomaly:
-1.  **Immediate Lockdown:** Edit `security_config.json` and set `"app_enabled": false`.
-2.  **Key Rotation:** Revoke the old API key in Google Cloud Console.
-3.  **Audit Logs:** Check your `LOG_URL` endpoint for `ROOT_DETECTED` or `SIGNATURE_MISMATCH` payloads.
-4.  **Redeploy:** Generate a new APK with the rotated key and update the `expectedSignature` hash if you changed your signing key.
+## 🧬 Autonomous Immune System
+The application now defends itself dynamically:
+1.  **Trust Scoring:** Repeated rapid-fire requests decrease your device's "Trust Score," exponentially increasing cooldown periods.
+2.  **Safe Mode:** If security verification fails (e.g., offline usage), the app enters "Safe Mode," allowing only local processing and protecting your high-value Cloud API keys.
+3.  **Anomaly Response:** Bot-like behavior triggers a self-imposed lockdown, reporting the anomaly to the telemetry server before shutting down.
 
 ---
 *Developed by Google Deepmind Team x AMTCE Intelligence*

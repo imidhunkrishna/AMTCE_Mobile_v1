@@ -105,17 +105,31 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // 🛡️ SECURITY 9: Behavioral Abuse Protection (Rate Limiting)
-        val currentTime = System.currentTimeMillis()
-        if (currentTime - lastMissionTime < MISSION_COOLDOWN) {
-            Toast.makeText(this, "⚠️ Security: Too many requests. Wait 30s.", Toast.LENGTH_LONG).show()
+        // 🧠 5: Local Anomaly Detection (Immune System)
+        val currentTimeInMin = currentTime / 60000
+        if (currentTimeInMin > lastAnomalyResetTime) {
+            missionCountInLastMinute = 0
+            lastAnomalyResetTime = currentTimeInMin
+        }
+        missionCountInLastMinute++
+        
+        if (missionCountInLastMinute > 5) { // Bot-like frequency detected
+            trustScore *= 0.5f // Penalize trust score
+        }
+
+        // 🛡️ SECURITY: Adaptive Cooldown (Exponential Backoff based on Trust)
+        val adaptiveCooldown = (MISSION_COOLDOWN / trustScore).toLong() 
+        if (currentTime - lastMissionTime < adaptiveCooldown) {
+            val waitTime = (adaptiveCooldown - (currentTime - lastMissionTime)) / 1000
+            Toast.makeText(this, "⚠️ Security: Cooldown active ($waitTime s).", Toast.LENGTH_SHORT).show()
             return
         }
         lastMissionTime = currentTime
 
-        // 🛡️ SECURITY: Final Resilience Check (Fail-Closed)
+        // 🛡️ SECURITY: Graceful Degradation (Safe Mode)
+        // [Architect Note] Instead of a hard block, we enter 'Safe Mode' for local ops.
         if (!isSecurityVerified) {
-            Toast.makeText(this, "⚠️ Security: Waiting for network verification...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "🌙 Safe Mode: Cloud API locked. Retrying security check...", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -166,6 +180,10 @@ class MainActivity : AppCompatActivity() {
             }.start()
         }
     private var isSecurityVerified = false
+    private var trustScore = 1.0f // 🧠 5: Dynamic Trust Score (1.0 = High Trust)
+    private var anomalyCounter = 0
+    private var missionCountInLastMinute = 0
+    private var lastAnomalyResetTime = 0L
 
     private fun performSecurityAudit(): Boolean {
         // 🧠 5: Attack Visibility (Adversarial Telemetry)
