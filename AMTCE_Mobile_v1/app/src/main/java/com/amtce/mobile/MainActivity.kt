@@ -88,7 +88,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         intent.getStringExtra(Intent.EXTRA_TEXT)?.let { sharedText ->
-            Log.d(TAG, "📥 Received Shared Link: $sharedText")
+            // 🛡️ SECURITY 3 & 7: Intent Validation & Log Stripping
+            // Prevent malicious apps from sending massive payloads or script injection
+            if (sharedText.length > 2000 || !sharedText.contains("http")) {
+                Toast.makeText(this, "⚠️ Security Error: Invalid link format.", Toast.LENGTH_LONG).show()
+                return
+            }
+
+            // Removed Log.d to prevent sensitive data leakage to logcat
             Toast.makeText(this, "AMTCE: Processing Link...", Toast.LENGTH_SHORT).show()
             
             // 5. Dispatch to Python Orchestrator in Background
