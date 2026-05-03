@@ -28,11 +28,21 @@ def get_video_info(path: str) -> Dict:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
         data = json.loads(result.stdout)
         stream = data.get("streams", [{}])[0]
+        fps_str = stream.get("r_frame_rate", "30/1")
+        try:
+            if "/" in fps_str:
+                num, den = fps_str.split("/")
+                parsed_fps = float(num) / float(den) if float(den) != 0 else 30.0
+            else:
+                parsed_fps = float(fps_str)
+        except:
+            parsed_fps = 30.0
+            
         return {
             "width": int(stream.get("width", 1080)),
             "height": int(stream.get("height", 1920)),
             "duration": float(stream.get("duration", 0)),
-            "fps": eval(stream.get("r_frame_rate", "30/1"))
+            "fps": parsed_fps
         }
     except:
         return {"width": 1080, "height": 1920, "duration": 0, "fps": 30}
