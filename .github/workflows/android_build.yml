@@ -22,9 +22,9 @@ jobs:
         cache: gradle
 
     - name: 🛡️ Inject Secure Credentials
+      working-directory: ./AMTCE_Mobile_v1
       run: |
         # Create a dynamic .env file for the Python environment
-        # These values are pulled from your GitHub Repo Secrets
         mkdir -p app/src/main/python
         echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > app/src/main/python/.env
         echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> app/src/main/python/.env
@@ -33,16 +33,18 @@ jobs:
         echo "✅ Secure .env injected into the build pipeline."
 
     - name: Grant execute permission for gradlew
+      working-directory: ./AMTCE_Mobile_v1
       run: chmod +x gradlew
 
     - name: 🏗️ Build with Gradle (Debug APK)
+      working-directory: ./AMTCE_Mobile_v1
       run: ./gradlew assembleDebug
 
     - name: 📦 Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: AMTCE-Mobile-Debug-APK
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: AMTCE_Mobile_v1/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 7
 
     - name: 🏁 Certification Report
