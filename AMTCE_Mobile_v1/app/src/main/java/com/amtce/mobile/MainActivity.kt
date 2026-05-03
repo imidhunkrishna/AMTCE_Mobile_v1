@@ -11,6 +11,8 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 
@@ -25,7 +27,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         apiKeyInput = findViewById(R.id.apiKeyInput)
-        sharedPrefs = getSharedPreferences("AMTCE_PREFS", Context.MODE_PRIVATE)
+
+        // 🛡️ Security: Create a MasterKey for encryption
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        // 🛡️ Security: Initialize EncryptedSharedPreferences
+        sharedPrefs = EncryptedSharedPreferences.create(
+            this,
+            "AMTCE_PREFS_SECURE",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
 
         // 1. Load Saved API Key
         val savedKey = sharedPrefs.getString("GEMINI_API_KEY", "")
