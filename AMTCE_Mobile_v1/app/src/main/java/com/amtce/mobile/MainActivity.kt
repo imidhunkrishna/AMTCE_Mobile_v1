@@ -3,10 +3,12 @@ package com.amtce.mobile
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.util.Log
 import android.widget.EditText
 import android.widget.TextView
@@ -17,6 +19,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.chaquo.python.Python
 import java.io.File
+import java.security.MessageDigest
 import java.util.*
 import com.chaquo.python.android.AndroidPlatform
 
@@ -90,12 +93,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var lastMissionTime: Long = 0
+    private val MISSION_COOLDOWN = 30000 // 🛡️ 9: 30s Behavioral Rate Limit
+
     private fun handleSharedText(intent: Intent) {
         val currentKey = apiKeyInput.text.toString()
         if (currentKey.isEmpty()) {
             Toast.makeText(this, "⚠️ Please provide a Gemini API Key first!", Toast.LENGTH_LONG).show()
             return
         }
+
+        // 🛡️ SECURITY 9: Behavioral Abuse Protection (Rate Limiting)
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastMissionTime < MISSION_COOLDOWN) {
+            Toast.makeText(this, "⚠️ Security: Too many requests. Wait 30s.", Toast.LENGTH_LONG).show()
+            return
+        }
+        lastMissionTime = currentTime
 
         intent.getStringExtra(Intent.EXTRA_TEXT)?.let { sharedText ->
             // 🛡️ SECURITY 3 & 7: Intent Validation & Log Stripping
@@ -146,16 +160,42 @@ class MainActivity : AppCompatActivity() {
     private fun performSecurityAudit(): Boolean {
         val isRooted = checkRoot()
         val isEmulator = checkEmulator()
+        val isTampered = !verifySignature()
         
-        if (isRooted || isEmulator) {
+        if (isRooted || isEmulator || isTampered) {
+            val message = if (isTampered) "Unofficial/Modded APK detected. Closing for safety." 
+                          else "This application cannot run on a rooted device or emulator."
+            
             AlertDialog.Builder(this)
                 .setTitle("🛡️ Security Violation")
-                .setMessage("This application cannot run on a rooted device or emulator for security reasons (Runtime Integrity Protection).")
+                .setMessage(message)
                 .setCancelable(false)
                 .setPositiveButton("Exit") { _, _ -> finish() }
                 .show()
             return false
         }
+        return true
+    }
+
+    private fun verifySignature(): Boolean {
+        // 🛡️ SECURITY 7: Anti-Repackaging Signature Validation
+        // This prevents attackers from re-signing your APK and distributing it.
+        try {
+            val packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+            for (signature in packageInfo.signatures) {
+                val md = MessageDigest.getInstance("SHA-256")
+                md.update(signature.toByteArray())
+                val currentSignature = Base64.encodeToString(md.digest(), Base64.DEFAULT).trim()
+                
+                // [Architect Note] Replace this with your actual production SHA-256 key hash 
+                // once you have signed your first release APK.
+                val expectedSignature = "YOUR_PRODUCTION_SIGNATURE_HASH_HERE" 
+                
+                if (expectedSignature != "YOUR_PRODUCTION_SIGNATURE_HASH_HERE" && currentSignature != expectedSignature) {
+                    return false
+                }
+            }
+        } catch (e: Exception) { return false }
         return true
     }
 
