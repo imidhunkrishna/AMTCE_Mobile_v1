@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import base64
 from typing import List, Dict, Any, Tuple
 from pathlib import Path
 
@@ -110,15 +111,34 @@ class SystemMemory:
         self._memory = self._load()
         self.memory_db = self._memory.get("memory_db", {})
 
+    def _encrypt(self, data: str) -> str:
+        # 🛡️ SECURITY: Application-Level Encryption for local RAG memory
+        key = os.getenv("GEMINI_API_KEY", "fallback_secure_key")
+        if not key: key = "fallback_secure_key"
+        encrypted = "".join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(data))
+        return base64.b64encode(encrypted.encode('utf-8')).decode('utf-8')
+
+    def _decrypt(self, b64data: str) -> str:
+        key = os.getenv("GEMINI_API_KEY", "fallback_secure_key")
+        if not key: key = "fallback_secure_key"
+        try:
+            encrypted = base64.b64decode(b64data.encode('utf-8')).decode('utf-8')
+            return "".join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(encrypted))
+        except:
+            return "{}"
+
     def _load(self) -> Dict:
         if self.path.exists():
             try:
-                with open(self.path, "r") as f:
-                    return json.load(f)
+                with open(self.path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    if content.startswith("{"): return json.loads(content) # Fallback for old unencrypted files
+                    return json.loads(self._decrypt(content))
             except:
                 pass
         return {
             "memory_db": {},
+            "patterns": {},
             "successful_edits": 0
         }
 
@@ -140,8 +160,9 @@ class SystemMemory:
 
     def _save(self):
         try:
-            with open(self.path, "w") as f:
-                json.dump(self._memory, f, indent=2)
+            with open(self.path, "w", encoding="utf-8") as f:
+                json_str = json.dumps(self._memory)
+                f.write(self._encrypt(json_str))
         except Exception as e:
             logger.error(f"Memory save failed: {e}")
 

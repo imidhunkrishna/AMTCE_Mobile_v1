@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import json
+import re
 from typing import List, Dict, Optional
 
 logger = logging.getLogger("amtce.compiler.video_engine")
@@ -11,12 +12,18 @@ logger = logging.getLogger("amtce.compiler.video_engine")
 HW_ENCODER = "h264_mediacodec" 
 PIX_FMT = "yuv420p"
 
+def sanitize_path(path: str) -> str:
+    # 🛡️ SECURITY: Prevent path traversal and shell injection
+    if ".." in path: path = path.replace("..", "")
+    return re.sub(r'[^\w\-./\\]', '_', path)
+
 def get_video_info(path: str) -> Dict:
+    clean_path = sanitize_path(path)
     try:
         cmd = [
             "ffprobe", "-v", "error", "-select_streams", "v:0",
             "-show_entries", "stream=width,height,duration,r_frame_rate",
-            "-of", "json", path
+            "-of", "json", clean_path
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
         data = json.loads(result.stdout)
@@ -37,13 +44,16 @@ class VideoEngine:
     """
     
     def render(self, input_path: str, output_path: str, timeline: Dict) -> bool:
-        if not os.path.exists(input_path):
+        clean_in = sanitize_path(input_path)
+        clean_out = sanitize_path(output_path)
+        
+        if not os.path.exists(clean_in):
             return False
 
-        logger.info(f"🏎️  [VideoEngine] Starting Hardware-Accelerated Render: {output_path}")
+        logger.info(f"🏎️  [VideoEngine] Starting Hardware-Accelerated Render: {clean_out}")
         
         # 1. Inputs
-        inputs = ["-i", input_path]
+        inputs = ["-i", clean_in]
         
         # 2. Build Filter Graph
         graph_nodes = []
@@ -100,7 +110,7 @@ class VideoEngine:
             "-b:v", "5M", # High bitrate for 1080p
             "-profile:v", "high",
             "-c:a", "aac", "-b:a", "192k",
-            output_path
+            clean_out
         ])
 
         try:

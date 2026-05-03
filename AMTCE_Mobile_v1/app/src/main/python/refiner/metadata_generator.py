@@ -43,7 +43,12 @@ class ViralMetadataGenerator:
         For the extraction phase, we use the strategic logic to build the request.
         """
         # This mirrors the logic in monetization_brain.py
-        logger.info(f"Generating Viral Metadata for: {video_title}")
+        # 🛡️ SECURITY: Prompt Injection Sanitization (RuFlow Swarm Patch)
+        blocked_words = ["ignore", "prompt", "system", "instruction", "override", "bypass"]
+        safe_title = " ".join([w for w in video_title.split() if w.lower() not in blocked_words])
+        if len(safe_title) < 2: safe_title = "Trending Content"
+
+        logger.info(f"Generating Viral Metadata for (Sanitized): {safe_title}")
         
         # We will connect this to the Gemini Router in the next step
         fallback_data = {
