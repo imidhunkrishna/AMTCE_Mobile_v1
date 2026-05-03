@@ -1,0 +1,24 @@
+{
+  "fashion": {
+    "hook_strategy": {
+      "telegram_purpose": "Desire + FOMO hook. Specific to the garment color/fabric. Amazon link motivation. Max 20 words.",
+      "community_purpose": "Insider fashion detail hook driving viewers to Telegram for exclusive content breakdown",
+      "narration_purpose": "High-Conversion Psychology: Sell the visual dominance and instant beauty upgrade. Focus on convenience and immediate social reward. Avoid motivation language."
+    },
+    "monetization_brain": {
+      "reviewer_prompt": "YOU ARE A HIGH-CONVERSION FASHION PSYCHOLOGY EXPERT. Identify specific garments (e.g. 'Emerald Silk Saree', 'Black Velvet Mini Dress'). Describe the BEAUTY or CONVENIENCE and the SOCIAL ADVANTAGE."
+    }
+  },
+  "fitness": {
+    "hook_strategy": {
+      "telegram_purpose": "Achievement and pain hook. Transformation oriented. Max 20 words.",
+      "narration_purpose": "Intense fitness coach voiceover. Effort and form description."
+    }
+  },
+  "generic": {
+    "hook_strategy": {
+      "telegram_purpose": "Curiosity gap and general FOMO. Max 20 words.",
+      "narration_purpose": "Engaging storytelling narration describing the action objectively."
+    }
+  }
+}

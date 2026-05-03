@@ -1,0 +1,52 @@
+// AMTCE_Mobile_v1/app/build.gradle
+plugins {
+    id 'com.android.application'
+    id 'com.chaquo.python'
+}
+
+android {
+    namespace 'com.amtce.mobile'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.amtce.mobile"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // 🔥 IMPORTANT: Only include arm64 for 4GB phones to save space
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a"
+        }
+
+        python {
+            version "3.10"
+            pip {
+                // 🛡️ YOUR ISOLATED VIRTUAL ENVIRONMENT
+                install "yt-dlp"
+                install "requests"
+                install "python-dotenv"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    
+    // 🎥 FFmpeg-Kit (Native high-speed video processing)
+    implementation 'com.arthenica:ffmpeg-kit-full-gpl:6.0'
+}

@@ -1,0 +1,30 @@
+# Android
+.gradle/
+build/
+local.properties
+.cxx/
+*.apk
+*.aar
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+env/
+venv/
+.pytest_cache/
+
+# AMTCE Specific
+downloads/
+intelligence/memory/
+*.db
+*.log
+vanguard/vanguard_registry.json
+
+# IDE
+.idea/
+*.iml
+.vscode/

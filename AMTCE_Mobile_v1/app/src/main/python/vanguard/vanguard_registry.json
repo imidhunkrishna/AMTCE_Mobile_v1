@@ -1,0 +1,18 @@
+{
+  "winning_styles": {
+    "fashion": "Cinematic Slow Zoom | 1.2x | Warm LUT",
+    "lifestyle": "Micro-Captions | Center-Screen | High Hype",
+    "general": "80ms Beat Anticipation | Tight Hook <1.0s"
+  },
+  "safety_guardrails": {
+    "max_api_calls_per_mission": 5,
+    "max_render_retries": 2,
+    "cooldown_upload_hours": 2,
+    "ram_threshold_mb": 512
+  },
+  "failed_patterns": [
+    "Generic 'Link in Bio' captions",
+    "1080p60 exports on <4GB RAM (Causes OOM)",
+    "Saturation > 1.2 (Triggers AI-Slop filters)"
+  ]
+}

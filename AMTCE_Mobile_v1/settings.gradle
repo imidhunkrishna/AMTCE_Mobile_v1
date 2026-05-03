@@ -1,0 +1,3 @@
+// AMTCE_Mobile_v1/settings.gradle
+rootProject.name = "AMTCE_Mobile"
+include ':app'
